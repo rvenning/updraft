@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Updraft 🎈 — Read the Sky, Ride the Wind</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#131a3a">
+<meta name="description" content="Fly a hot-air balloon with nothing but a burner and a vent. Six wind bands, each going a different way — pick the right one, gather the runaway balloons and land before dark.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Updraft">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lib/gk-base.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎈</text></svg>">
+</head>
+<body>
+
+<!-- Splash -->
+<div class="screen active" id="screen-splash">
+  <div class="splash-inner">
+    <div class="splash-sky" aria-hidden="true"><span>🎈</span><span>🕊️</span><span>🏮</span></div>
+    <h1 class="logo">UP<span>DRAFT</span></h1>
+    <p class="tagline">You have a burner and a vent. The wind decides everything else.</p>
+    <button class="btn big" id="btn-continue-as" style="display:none"></button>
+    <button class="btn big green" id="btn-start" onclick="App.play()">🎈 Start Flying</button>
+    <button class="btn ghost" onclick="App.howTo()">📖 How to Fly</button>
+    <button class="btn ghost" id="btn-install" style="display:none">📲 Add to Home Screen</button>
+    <p class="keys-hint">⌨️ ↑/↓ burn and vent · Space drops ballast · F for 2× · P to pause</p>
+    <div class="splash-foot">
+      <span id="sync-badge">⏳ connecting…</span>
+      <button class="btn-sound iconbtn">🔊</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile picker (roster + PIN modals are rendered by GK.Profiles) -->
+<div class="screen" id="screen-profiles">
+  <header class="topbar">
+    <button class="iconbtn" onclick="App.showScreen('splash')" aria-label="Back">←</button>
+    <h2 class="grow">Who's flying?</h2>
+    <button class="btn-sound iconbtn">🔊</button>
+  </header>
+  <div class="content">
+    <div class="profile-list" id="profile-list"></div>
+  </div>
+</div>
+
+<!-- Region map -->
+<div class="screen" id="screen-map">
+  <header class="topbar sticky">
+    <button class="iconbtn" onclick="App.play()" aria-label="Switch pilot">👥</button>
+    <div class="map-player grow" id="map-player"></div>
+    <span class="map-stat" id="map-stars"></span>
+    <span class="map-stat" id="map-ribbons"></span>
+    <button class="iconbtn" onclick="App.showLeaderboard()" aria-label="Leaderboard">🏆</button>
+  </header>
+  <div class="content">
+    <button class="btn big green wide" id="btn-continue"></button>
+    <div class="row-btns2">
+      <button class="btn blue" onclick="App.showShop()">🎀 Ribbon Loft</button>
+      <button class="btn" id="btn-drift" onclick="App.startDrift()" style="display:none">🌬️ The Long Drift</button>
+    </div>
+    <div id="region-list"></div>
+  </div>
+</div>
+
+<!-- Ribbon loft -->
+<div class="screen" id="screen-shop">
+  <header class="topbar sticky">
+    <button class="iconbtn" onclick="App.showMap()" aria-label="Back to the map">←</button>
+    <h2 class="grow">🎀 Ribbon Loft</h2>
+    <span class="map-stat" id="shop-ribbons"></span>
+  </header>
+  <div class="content">
+    <p class="nudge">Permanent fittings for the balloon. Ribbons come from every flight, won or lost.</p>
+    <div class="shop-list" id="shop-list"></div>
+  </div>
+</div>
+
+<!-- Leaderboard -->
+<div class="screen" id="screen-leaderboard">
+  <header class="topbar sticky">
+    <button class="iconbtn" onclick="App.showMap()" aria-label="Back to the map">←</button>
+    <h2 class="grow">🏆 Family Pilots</h2>
+    <button class="btn-sound iconbtn">🔊</button>
+  </header>
+  <div class="content">
+    <p class="nudge">Ranked by best Long Drift score — the one sky the whole family shares.</p>
+    <div class="lb-rows" id="lb-rows"></div>
+  </div>
+</div>
+
+<!-- Game -->
+<div class="screen" id="screen-game">
+  <header class="gamebar">
+    <button class="iconbtn small" onclick="App.togglePause()" aria-label="Pause">⏸</button>
+    <div class="gauge gas" title="Gas"><div class="gauge-fill" id="hud-gas"></div><span class="gauge-icon">⛽</span></div>
+    <div class="gauge sun" title="Daylight"><div class="gauge-fill" id="hud-sun"></div><span class="gauge-icon">☀️</span></div>
+    <span class="hud cargo" id="hud-cargo">🎈 0/0</span>
+    <span class="hud alt" id="hud-alt"></span>
+    <button class="iconbtn small" id="hud-sand" onclick="App.dropSand()" aria-label="Drop ballast">🪨 0</button>
+    <button class="iconbtn small" id="btn-speed" onclick="App.toggleSpeed()" aria-label="Speed">▶️ 1×</button>
+  </header>
+  <div class="game-stage">
+    <canvas id="cv"></canvas>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="screen" id="screen-results">
+  <div class="res-inner">
+    <div class="res-emoji" id="res-emoji">🧺</div>
+    <h2 class="res-title" id="res-title"></h2>
+    <div class="res-stars" id="res-stars"></div>
+    <div class="res-score" id="res-score">0</div>
+    <div class="res-stats" id="res-stats"></div>
+    <p class="res-note" id="res-note"></p>
+    <p class="res-finished" id="res-finished" style="display:none">👑 Every meadow reached and every balloon home. You are the Updraft champion!</p>
+    <div class="res-actions">
+      <button class="btn grey" onclick="App.showMap()">🗺️ Map</button>
+      <button class="btn" id="res-retry" style="display:none"></button>
+      <button class="btn green" id="res-next" style="display:none"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="modal" id="modal-pause">
+  <div class="sheet">
+    <h2>⏸ Holding</h2>
+    <button class="btn blue wide" id="btn-music" onclick="App.toggleMusic()">🎵 Music: On</button>
+    <div class="row-btns2">
+      <button class="btn green" onclick="App.resume()">▶️ Fly On</button>
+      <button class="btn grey" onclick="App.quit()">🗺️ Quit</button>
+    </div>
+  </div>
+</div>
+
+<!-- How to fly -->
+<div class="modal" id="modal-howto">
+  <div class="sheet">
+    <h2>📖 How to Fly</h2>
+    <ul class="howto">
+      <li><b>Hold the top half</b> of the screen to burn and rise. <b>Hold the bottom half</b> to vent and sink. That is every control you have.</li>
+      <li>You cannot steer sideways. <b>The wind band you are in does that</b> — read the ladder down the left: <span class="east">▸▸</span> goes toward the meadow, <span class="west">◂◂</span> comes back.</li>
+      <li>The <b>top band is fastest and thinnest</b>. The burner drinks gas up there, so speed costs fuel.</li>
+      <li><b>Golden columns lift you for free.</b> Find them and you barely need the burner at all.</li>
+      <li><b>🪨 Drop ballast</b> to leap upward — but a lighter balloon can never dive as fast again. Spend it carefully.</li>
+      <li><b>Birds tear the envelope</b>, and every tear makes it cool faster for the rest of the flight. They stack.</li>
+      <li>Land in the bunting-lined meadow before the sun sets. One star for the delivery, two for every balloon, three for a flight without a scratch.</li>
+    </ul>
+    <button class="btn green wide" onclick="App.closeHowTo()">Got it</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- gamekit (vendored from rvenning/gamekit into lib/) -->
+<script src="lib/gk-util.js"></script>
+<script src="lib/gk-audio.js"></script>
+<script src="lib/gk-ui.js"></script>
+<script src="lib/gk-storage.js"></script>
+<script src="lib/gk-profiles.js"></script>
+<script src="lib/gk-pwa.js"></script>
+<script src="lib/gk-fx.js"></script>
+<script src="lib/gk-debug.js"></script>
+<script src="lib/gk-path.js"></script>
+<script>
+// Soft and airy: light round motes, a shake that settles fast so the band
+// streaks stay readable, and low gravity so a burst hangs like blown seed.
+const Fx = GK.Fx.configure({
+  grav: 90, poolCap: 560, shakeMax: 10, shakeDecay: 30, shape: "circle",
+  burstSpeed: 130, burstSize: 2.4, textSize: 11, textDy: -28, textCap: 22,
+  font: "'Baloo 2', system-ui, sans-serif",
+});
+const Tween = GK.Tween;
+</script>
+<script src="js/firebase-config.js"></script>
+<!-- data registries -->
+<script src="js/sky.js"></script>
+<script src="js/pickups.js"></script>
+<script src="js/birds.js"></script>
+<script src="js/flights.js"></script>
+<script src="js/rng.js"></script>
+<script src="js/drift.js"></script>
+<script src="js/upgrades.js"></script>
+<!-- systems -->
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

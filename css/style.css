@@ -1,0 +1,202 @@
+/* Updraft — game styles on top of lib/gk-base.css.
+   The kit's primitives (.btn, .screen, .topbar, .modal, .toast, profile roster)
+   are re-themed through the --gk-* custom properties rather than forked. */
+
+:root {
+  /* gk-base's own button colours carry WHITE lettering and measure 2.4:1 and
+     3.0:1 against it. These are the measured-safe replacements, picked for the
+     SMALLEST button on the page (the 15px row buttons need 4.5:1, not 3:1). */
+  --gk-green: #1a8253;  --gk-green-sh: #106b42;
+  --gk-blue:  #2670ab;  --gk-blue-sh:  #17527f;
+  --gk-grey:  #616675;  --gk-grey-sh:  #414553;
+  --gk-danger:#c0463d;  --gk-danger-sh:#8c2f28;
+  --gk-accent: #ffc93c; --gk-accent-sh: #c2901c;
+  --gk-ink: #131a3a;
+
+  --up-night: #131a3a;
+  --up-ink:   #171f36;
+  --up-sky:   #5ab7ff;
+  --up-gold:  #ffc93c;
+  --up-meadow:#7bd88f;
+  --up-rose:  #ff8fb0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Paint the ROOT, not just body: with viewport-fit=cover iOS extends the visual
+   viewport past height:100% in standalone, and a body-only background leaves a
+   white strip behind the home indicator. */
+html { background: var(--up-night); height: 100%; overflow: hidden; }
+body {
+  min-height: 100vh;          /* every screen is position:fixed, so body has
+                                 almost no content height — without this the
+                                 root colour shows through below it */
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Baloo 2', 'Comic Sans MS', system-ui, sans-serif;
+  color: #fff;
+  background:
+    radial-gradient(ellipse at 15% -10%, #2b3a7a 0%, transparent 58%),
+    radial-gradient(ellipse at 88% 106%, #1d4a5e 0%, transparent 60%),
+    linear-gradient(180deg, #1c2450 0%, #131a3a 74%);
+  background-color: var(--up-night);   /* AFTER the shorthand, or it is a no-op */
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+.screen { background: transparent; }
+h2 { font-size: 22px; }
+
+/* gk-base's plain .btn is WHITE on --gk-accent, and this accent is a bright
+   gold. Give it the dark ink instead and keep white only on the deliberately
+   darkened fills. */
+.btn { color: var(--up-ink); }
+.btn.green, .btn.blue, .btn.grey, .btn.danger { color: #fff; }
+
+.row-btns2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.row-btns2 .btn { width: 100%; margin: 8px 0; }
+.nudge { font-size: 13px; opacity: .78; text-align: center; margin: 6px 0 12px; }
+
+/* A bar of controls on a scrolling screen has to stay reachable. */
+.topbar.sticky {
+  position: sticky; top: 0; z-index: 4;
+  background: linear-gradient(180deg, rgba(19,26,58,.96) 70%, rgba(19,26,58,0));
+}
+
+/* -------------------------------- splash --------------------------------- */
+.splash-inner {
+  min-height: 100%; width: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  padding: 24px; text-align: center;
+}
+.splash-sky { font-size: 30px; letter-spacing: 16px; animation: bob 3.4s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+.logo {
+  font-size: clamp(40px, 12vw, 68px); line-height: .95; font-weight: 800;
+  color: var(--up-gold);
+  text-shadow: 0 4px 0 #a3761a, 0 8px 0 rgba(0,0,0,.4);
+  margin: 6px 0 2px; letter-spacing: 1px;
+}
+.logo span { display: block; color: var(--up-sky); text-shadow: 0 4px 0 #266c9e, 0 8px 0 rgba(0,0,0,.4); }
+.tagline { font-size: 16.5px; opacity: .92; margin-bottom: 14px; max-width: 340px; }
+.btn.big { font-size: 22px; padding: 18px 34px; min-width: 260px; }
+.btn.ghost { background: rgba(255,255,255,.14); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+.btn.small { font-size: 15px; padding: 10px 14px; border-radius: 12px; margin: 0; box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+.keys-hint { font-size: 12.5px; opacity: .58; margin-top: 10px; display: none; }
+@media (pointer: fine) { .keys-hint { display: block; } }
+.splash-foot { margin-top: 16px; display: flex; align-items: center; gap: 14px; opacity: .9; font-size: 14px; }
+
+/* --------------------------------- map ----------------------------------- */
+.map-player { font-size: 17px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.map-stat { font-weight: 800; font-size: 15px; color: var(--up-gold); white-space: nowrap; }
+.region { margin: 18px 0 6px; }
+.region h3 {
+  font-size: 15px; letter-spacing: .5px; margin-bottom: 8px;
+  color: var(--rc, var(--up-sky)); text-transform: uppercase;
+}
+/* minmax(0,…) not 1fr: an `auto` minimum refuses to shrink below its content
+   and the last column spills off a narrow phone. */
+.flight-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.flight {
+  border: none; border-radius: 14px; padding: 9px 4px 7px; cursor: pointer;
+  font-family: inherit; color: #fff; min-width: 0;
+  background: rgba(255,255,255,.1); box-shadow: 0 4px 0 rgba(0,0,0,.32);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.flight.next { background: rgba(255,201,60,.3); box-shadow: 0 4px 0 var(--gk-accent-sh); }
+.flight.locked { opacity: .42; cursor: default; }
+.flight:not(.locked):active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.32); }
+.flight-n { font-size: 19px; font-weight: 800; line-height: 1; }
+.flight-name { font-size: 8.5px; opacity: .82; max-width: 100%; overflow: hidden;
+               text-overflow: ellipsis; white-space: nowrap; }
+.flight-stars { font-size: 9px; color: var(--up-gold); letter-spacing: .5px; }
+
+/* -------------------------------- shop ----------------------------------- */
+.shop-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 30px; }
+.shop-card {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,.1); border-radius: 16px; padding: 12px 14px;
+}
+.shop-card.maxed { opacity: .62; }
+.shop-icon { font-size: 27px; width: 40px; text-align: center; }
+.shop-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.shop-name { font-weight: 800; font-size: 15px; }
+.shop-pips { color: var(--up-sky); font-size: 11px; letter-spacing: 2px; margin-left: 4px; }
+.shop-desc { font-size: 12.5px; opacity: .78; }
+.shop-max { font-weight: 800; font-size: 13px; color: var(--up-gold); }
+
+/* -------------------------------- modals --------------------------------- */
+/* gk-base styles `.sheet` (the markup gk-profiles and gk-pwa inject) and has no
+   `.modal-box` rule at all — this game uses .sheet for its own modals too, so
+   there is nothing to re-create. Only the how-to list needs dressing. */
+.howto { text-align: left; margin: 4px 0 14px; padding-left: 18px; }
+.howto li { font-size: 13.5px; line-height: 1.5; margin-bottom: 9px; opacity: .92; }
+/* gk-base's .sheet is WHITE with dark ink, so the game's own sky palette is
+   unreadable inside it — the gold highlight measured 1.54:1. These are the dark
+   equivalents, chosen for a white ground rather than for the night sky. */
+.howto b { color: #8a5a00; }
+.howto .east { color: #14672a; font-weight: 800; }
+.howto .west { color: #a92637; font-weight: 800; }
+
+/* ------------------------------ game screen ------------------------------ */
+/* No `display` here: gk-base already does .screen{display:none} +
+   .screen.active{display:flex}, and an ID selector outranks BOTH — which pins
+   the game screen visible on top of every other screen forever. All this needs
+   is to stop gk-base centring, which collapses the stage to zero width. */
+#screen-game { align-items: stretch; justify-content: flex-start; overflow: hidden; touch-action: none; }
+.gamebar {
+  display: flex; align-items: center; gap: 7px; flex: 0 0 auto;
+  padding: calc(6px + env(safe-area-inset-top)) 9px 6px;
+  background: rgba(13,18,42,.9); z-index: 5;
+}
+.gamebar .iconbtn.small {
+  width: auto; min-width: 38px; height: 36px; padding: 0 8px;
+  font-size: 14px; font-weight: 800; border-radius: 11px; white-space: nowrap;
+}
+.gamebar .iconbtn.small:disabled { opacity: .4; }
+.gauge {
+  position: relative; flex: 1; height: 15px; min-width: 42px;
+  border-radius: 8px; overflow: hidden;
+  background: rgba(0,0,0,.5); box-shadow: inset 0 2px 4px rgba(0,0,0,.45);
+}
+.gauge-fill { height: 100%; width: 100%; border-radius: 8px; transition: width .14s linear; }
+.gauge.gas .gauge-fill { background: linear-gradient(90deg, #ff9c3c, #ffd166); }
+.gauge.sun .gauge-fill { background: linear-gradient(90deg, #ffb46b, #ffe9a8); }
+.gauge-fill.low { background: linear-gradient(90deg, #c0463d, #ff7a6e); }
+.gauge-icon {
+  position: absolute; left: 3px; top: 50%; transform: translateY(-50%);
+  font-size: 9px; opacity: .85; pointer-events: none;
+}
+.hud { font-weight: 800; font-size: 14px; white-space: nowrap; }
+.hud.cargo { color: var(--up-meadow); font-size: 15px; }
+.hud.cargo.short { color: rgba(255,255,255,.55); }
+.hud.alt { color: var(--up-sky); font-size: 12.5px; }
+.game-stage {
+  position: relative; flex: 1 1 auto; width: 100%; min-height: 0;
+  overflow: hidden; touch-action: none; background: var(--up-night);
+}
+/* The canvas is a replaced element: without an explicit CSS size it renders at
+   its ATTRIBUTE size (logical x DPR) and overflows every retina screen. */
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+/* -------------------------------- results -------------------------------- */
+.res-inner {
+  min-height: 100%; width: 100%; max-width: 480px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 24px; text-align: center;
+}
+.res-emoji { font-size: 58px; animation: bob 2.4s ease-in-out infinite; }
+.res-title { font-size: 26px; }
+.res-stars { font-size: 30px; color: var(--up-gold); letter-spacing: 4px; }
+.res-score { font-size: 46px; font-weight: 800; color: var(--up-gold); line-height: 1; }
+.res-stats {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+  margin: 14px 0 6px; width: 100%; font-size: 14px; font-weight: 700;
+}
+.res-stats div { background: rgba(255,255,255,.1); border-radius: 12px; padding: 8px 10px; }
+.res-stats div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.res-note { font-size: 13.5px; opacity: .86; min-height: 18px; max-width: 350px; }
+.res-finished { font-size: 14px; color: var(--up-meadow); font-weight: 800; margin-top: 8px; }
+.res-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* ----------------------------- leaderboard ------------------------------- */
+.lb-stat { font-weight: 800; font-size: 13px; opacity: .92; margin-left: 8px; }

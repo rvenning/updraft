@@ -1,0 +1,9 @@
+{
+  "name": "updraft",
+  "private": true,
+  "description": "Updraft — a hot-air balloon collecting game built on gamekit. Altitude is the only control; the wind decides the rest.",
+  "scripts": {
+    "test": "node --test",
+    "icons": "node tools/make-icons.js"
+  }
+}
