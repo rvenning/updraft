@@ -1,6 +1,6 @@
 // Updraft service worker — network-first, cache fallback.
 // BUMP the cache name on ANY shell change or devices keep serving the old build.
-const CACHE = "updraft-v1";
+const CACHE = "updraft-v2";
 const SHELL = [
   ".",
   "index.html",
