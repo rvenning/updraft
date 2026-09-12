@@ -50,11 +50,23 @@ const FLIGHTS_RAW = [
   /* ===================== 1 · Meadowlight — learn the stack ================ */
   {
     region: 0, name: "First Light", len: 1750, dusk: 138, sand: 3,
-    note: "Band 2 runs east. Band 4 comes back. That is the whole trick.",
+    note: "Two bands run east: the slow one down low, the fast one up top. Come back down to the slow one to land.",
     winds: [12, 44, 6, -34, 62, 82],
     terrain: [[-320, 488], [520, 472], [1080, 486], [1610, 480], [2070, 480]],
     air: [{ x: 700, w: 180, v: -42, top: 150 }],
-    legs: [[1,4], [4,2]],
+    // Out low, up for the fast air, back down low for the run-in.
+    //
+    // The last leg has to be a LOW band, and on the tutorial that is not a
+    // stylistic choice. With the cargo ending in band 4 the approach was
+    // unflyable by the pilot this flight is written for: the field is 480px
+    // wide and band 4 crosses it in four seconds, while a descent from band 4
+    // that is not a committed dive takes eighteen. So a first-time player
+    // arrived over the meadow, sank, was carried past the bunting into the east
+    // wall, and then — dropping through band 3, the one westerly in the stack —
+    // was carried back the way they had come. "It gets to the end and starts
+    // going backwards" is exactly what that looks like, and it was the first
+    // thing the game taught anybody.
+    legs: [[1,2], [4,2], [1,2]],
     extras: [[880, 3, 0.5, "lantern"],
               [620, 2, 0.5, "canister"]],
     birds: [],
